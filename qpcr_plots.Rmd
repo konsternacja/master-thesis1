@@ -1,0 +1,54 @@
+---
+title: "AT5G45470 & AT545480"
+output: html.notebook
+---
+
+This is a notebook with plots to my master thesis
+
+```{r}
+require(ggplot2)
+require(readxl)
+```
+
+```{r}
+fold.70 <- c(3.28, 0.33, 0.92, 12.01, 29.38, 14.37)
+fold.80 <- c(0.52, 0.7, 2.75, 10.71, 14.09, 3.96)
+names <- c('E-3', 'E-4', 'E-5', 'E+2', 'E+3', 'E+4')
+sd.70 <- c(1.56, 1.56, 1.56, 9.42, 9.42, 9.42)
+```
+
+```{r}
+df.70 <- data.frame(names, fold.70, sd.70)
+```
+
+```{r}
+df.80 <- data.frame(names, fold.80)
+```
+
+```{r}
+ggplot(data = df.70, aes(names, fold.70))+
+  geom_bar(stat="identity")+
+  labs(title = "Fold change dla genu AT5G545470", x = "Roślina", y = "Fold change")+
+  geom_errorbar( aes(x=names, ymin=fold.70-sd.70, ymax=fold.70+sd.70), width=0.1, colour="black", alpha=0.9, size=0.5)
+```
+
+```{r}
+ggplot(data = df.80, aes(names, fold.80))+
+  geom_bar(stat="identity")+
+  labs(title = "Fold change dla genu AT5G45480", x = "Roślina", y = "Fold change")
+```
+
+```{r}
+plant <- c(rep("E-", 3), rep("E+", 3), rep("E-", 3), rep("E+", 3))
+goi <- c(rep("70", 6), rep("80", 6))
+fold.change <- c(3.28, 0.33, 0.92, 12.01, 29.38, 14.37, 0.52, 0.7, 2.75, 10.71, 14.09, 3.96)
+anova.df <- data.frame(plant, goi, fold.change)
+anova.df
+fc.anova <- aov(fold.change ~ plant + goi, data=anova.df)
+summary(fc.anova)
+TukeyHSD(fc.anova)
+
+ggplot(anova.df, aes(x=plant, y=fold.change, fill=goi)) +
+  geom_boxplot(color="black", fill="grey33")+
+  labs(title = "Sumaryczne fold change w zależności od inokulacji", x = "Roślina", y = "Fold change")
+```
