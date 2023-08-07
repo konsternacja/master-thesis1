@@ -1,0 +1,25 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+plant <- c(rep("70E-", 3), rep("70E+", 3), rep("80E-", 3), rep("80E+", 3))
+fold.change <- c(3.28, 0.33, 0.92, 12.01, 29.38, 14.37, 0.52, 0.7, 2.75, 10.71, 14.09, 3.96)
+df <- data.frame(plant, fold.change)
+df
+```
+
+```{r}
+means <- df %>%
+  group_by(plant) %>% 
+  summarise(fold.change = mean(fold.change))
+means$error.bars <- c(9.42, 1.56, 5.14, 1.24)
+means
+
+bar_plot <- ggplot(df, aes(x = plant, y = fold.change, fill = plant)) +
+  geom_bar(data=means, stat = "identity", alpha=0.8) +
+  geom_point(alpha=0.8) +
+  geom_errorbar(data=means, aes(ymin=fold.change - error.bars, ymax=fold.change+error.bars), width = 0.25)
+bar_plot
+```
