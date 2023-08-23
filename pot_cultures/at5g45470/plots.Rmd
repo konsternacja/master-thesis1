@@ -1,0 +1,47 @@
+---
+title: "AT5G45470 pot cultures"
+output: html_notebook
+---
+
+AT5G45470 plots for the pot culture
+
+```{r}
+require(ggplot2)
+require(readODS)
+```
+
+```{r}
+kiel <- read_ods("kielkowanie.ods")
+kwit <- read_ods('kwitnienie70.ods')
+liscie <- read_ods('liscie70.ods')
+print(liscie)
+```
+
+```{r}
+ggplot(kwit, aes(x = DNI)) +
+  geom_line(aes(y = X70minus), color = "blue", linetype = "solid") +
+  geom_line(aes(y = X70plus), color = "red", linetype = "solid") +
+  geom_line(aes(y = Wtminus), color = "green", linetype = "solid") +
+  geom_line(aes(y = Wtplus), color = "purple", linetype = "solid") +
+  labs(x = "Dni", y = "Kwitnienie", title = "Kwitnienie na przestrzeni 8 dni") +
+  theme_minimal()
+```
+```{r}
+ggplot(liscie, aes(x = DNI)) +
+  geom_line(aes(y = X70minus), color = "blue", linetype = "solid") +
+  geom_line(aes(y = X70plus), color = "red", linetype = "solid") +
+  geom_line(aes(y = Wtminus), color = "green", linetype = "solid") +
+  geom_line(aes(y = Wtplus), color = "purple", linetype = "solid") +
+  labs(x = "Dni", y = "Liczba liści", title = "Liczba liści na przestrzeni 11 dni") +
+  theme_minimal()
+```
+```{r}
+ggplot(kiel, aes(x = DNI)) +
+  geom_line(aes(y = X70), color = "blue", linetype = "solid") +
+  geom_line(aes(y = WT), color = "purple", linetype = "solid") +
+  labs(x = "Dni", y = "Liczba wykiełkowanych roślin", title = "Liczba wykiełkowanych roślin na przestrzeni 5 dni") +
+  theme_minimal()
+```
+```{r}
+
+```

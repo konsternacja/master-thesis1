@@ -1,9 +1,9 @@
 ---
-title: "AT5G45470 & AT545480"
+title: "AT5G45470 & AT545480 qPCR"
 output: html.notebook
 ---
 
-This is a notebook with plots to my master thesis
+qPCR analysis and plots for my master thesis.
 
 ```{r}
 require(ggplot2)
