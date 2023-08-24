@@ -8,40 +8,90 @@ AT5G45470 plots for the pot culture
 ```{r}
 require(ggplot2)
 require(readODS)
+require(dplyr)
+require(car)
 ```
 
 ```{r}
 kiel <- read_ods("kielkowanie.ods")
 kwit <- read_ods('kwitnienie70.ods')
 liscie <- read_ods('liscie70.ods')
-print(liscie)
+print(kwit)
 ```
 
 ```{r}
-ggplot(kwit, aes(x = DNI)) +
-  geom_line(aes(y = X70minus), color = "blue", linetype = "solid") +
-  geom_line(aes(y = X70plus), color = "red", linetype = "solid") +
-  geom_line(aes(y = Wtminus), color = "green", linetype = "solid") +
-  geom_line(aes(y = Wtplus), color = "purple", linetype = "solid") +
+plot <- ggplot(kwit, aes(x = DNI)) +
+  geom_line(aes(y = X70minus), color = "#A6CEE3", linetype = "solid") +
+  geom_point(aes(y = X70minus), color = "#A6CEE3", shape = 16, size = 3) +
+  geom_line(aes(y = X70plus), color = "#1F78B4", linetype = "solid") +
+  geom_point(aes(y = X70plus), color = "#1F78B4", shape = 16, size = 3) +
+  geom_line(aes(y = Wtminus), color = "#B2DF8A", linetype = "solid") +
+  geom_point(aes(y = Wtminus), color = "#B2DF8A", shape = 16, size = 3) +
+  geom_line(aes(y = Wtplus), color = "#33A02C", linetype = "solid") +
+  geom_point(aes(y = Wtplus), color = "#33A02C", shape = 16, size = 3) +
   labs(x = "Dni", y = "Kwitnienie", title = "Kwitnienie na przestrzeni 8 dni") +
-  theme_minimal()
-```
-```{r}
-ggplot(liscie, aes(x = DNI)) +
-  geom_line(aes(y = X70minus), color = "blue", linetype = "solid") +
-  geom_line(aes(y = X70plus), color = "red", linetype = "solid") +
-  geom_line(aes(y = Wtminus), color = "green", linetype = "solid") +
-  geom_line(aes(y = Wtplus), color = "purple", linetype = "solid") +
-  labs(x = "Dni", y = "Liczba liści", title = "Liczba liści na przestrzeni 11 dni") +
-  theme_minimal()
-```
-```{r}
-ggplot(kiel, aes(x = DNI)) +
-  geom_line(aes(y = X70), color = "blue", linetype = "solid") +
-  geom_line(aes(y = WT), color = "purple", linetype = "solid") +
-  labs(x = "Dni", y = "Liczba wykiełkowanych roślin", title = "Liczba wykiełkowanych roślin na przestrzeni 5 dni") +
-  theme_minimal()
-```
-```{r}
+  theme_minimal() +
+  scale_color_manual(values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C")) +
+  theme(legend.position = "top")
 
+# Wyświetlenie wykresu
+print(plot)
+```
+
+```{r}
+plot <- ggplot(liscie, aes(x = DNI)) +
+  geom_line(aes(y = X70minus), color = "#A6CEE3", linetype = "solid") +
+  geom_point(aes(y = X70minus), color = "#A6CEE3", shape = 16, size = 3) +
+  geom_line(aes(y = X70plus), color = "#1F78B4", linetype = "solid") +
+  geom_point(aes(y = X70plus), color = "#1F78B4", shape = 16, size = 3) +
+  geom_line(aes(y = Wtminus), color = "#B2DF8A", linetype = "solid") +
+  geom_point(aes(y = Wtminus), color = "#B2DF8A", shape = 16, size = 3) +
+  geom_line(aes(y = Wtplus), color = "#33A02C", linetype = "solid") +
+  geom_point(aes(y = Wtplus), color = "#33A02C", shape = 16, size = 3) +
+  labs(x = "Dni", y = "Liczba liści", title = "Liczba liści na przestrzeni 11 dni") +
+  theme_minimal() +
+  scale_color_manual(values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C")) +
+  theme(legend.position = "top")
+
+# Wyświetlenie wykresu
+print(plot)
+```
+
+```{r}
+plot <- ggplot(kiel, aes(x = DNI)) +
+  geom_line(aes(y = X70), color = "#A6CEE3", linetype = "solid") +
+  geom_point(aes(y = X70), color = "#A6CEE3", shape = 16, size = 3) +  # Punkty dla linii X70
+  geom_line(aes(y = WT), color = "#33A02C", linetype = "solid") +
+  geom_point(aes(y = WT), color = "#33A02C", shape = 16, size = 3) +  # Punkty dla linii WT
+  labs(x = "Dni", y = "Liczba wykiełkowanych roślin", title = "Liczba wykiełkowanych roślin na przestrzeni 5 dni") +
+  theme_minimal() +
+  scale_color_manual(values = c("#A6CEE3", "#33A02C")) +  # Kolor linii
+  theme(legend.position = "top")  # Przeniesienie legendy na górę
+
+# Wyświetlenie wykresu
+print(plot)
+```
+
+```{r}
+t.test <- t.test(kiel$X70,kiel$WT, var.equal = TRUE)
+t.test
+```
+```{r}
+kwit2 <- read_ods('kwitnienie70_anova.ods')
+liscie2 <- read_ods('liscie70_anova.ods')
+```
+
+```{r}
+anova <- aov(data = kwit2, formula = wynik ~ DNI * rodzaj)
+summary(anova)
+```
+```{r}
+TukeyHSD(anova)
+```
+```{r}
+anova2 <- aov(data = liscie2, formula = wynik ~ DNI * rodzaj)
+summary(anova2)
+```
+```{r}
+TukeyHSD(anova2)
 ```
