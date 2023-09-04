@@ -8,6 +8,7 @@ qPCR analysis and plots for my master thesis.
 ```{r}
 require(ggplot2)
 require(readxl)
+require(dplyr)
 ```
 
 Livak method:
