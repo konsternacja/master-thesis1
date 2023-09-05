@@ -89,7 +89,11 @@ bar_plot <- ggplot(df, aes(x = plant, y = fold.change, fill = plant)) +
   scale_fill_manual(values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C")) +
   geom_hline(yintercept = 1, linetype = "dashed", color = "grey") +
   theme(legend.position = "none") +
-  geom_errorbar(data=means, aes(ymin=fold.change - error.bars, ymax=fold.change+error.bars), width = 0.25)
+  geom_errorbar(data=means, aes(ymin=fold.change - error.bars, ymax=fold.change+error.bars), width = 0.25) +
+  theme(panel.background = element_rect(fill = "white"),  # Białe tło
+        panel.grid.major = element_line(color = "lightgrey"),  # Szare osie siatki
+        panel.grid.minor = element_blank())  # Usunięcie siatki podrzędnej
+
 bar_plot
 ```
 

@@ -16,23 +16,24 @@ require(car)
 kiel <- read_ods("kielkowanie.ods")
 kwit <- read_ods('kwitnienie70.ods')
 liscie <- read_ods('liscie70.ods')
-print(kiel)
+print(kwit)
 ```
 
 ```{r}
 plot <- ggplot(kwit, aes(x = DNI)) +
-  geom_line(aes(y = X70minus), color = "#A6CEE3", linetype = "solid") +
-  geom_point(aes(y = X70minus), color = "#A6CEE3", shape = 16, size = 3) +
-  geom_line(aes(y = X70plus), color = "#1F78B4", linetype = "solid") +
-  geom_point(aes(y = X70plus), color = "#1F78B4", shape = 16, size = 3) +
-  geom_line(aes(y = Wtminus), color = "#B2DF8A", linetype = "solid") +
-  geom_point(aes(y = Wtminus), color = "#B2DF8A", shape = 16, size = 3) +
-  geom_line(aes(y = Wtplus), color = "#33A02C", linetype = "solid") +
-  geom_point(aes(y = Wtplus), color = "#33A02C", shape = 16, size = 3) +
+  geom_line(aes(y = X70minus, color = "AT5G45470 E-"), linetype = "solid") +
+  geom_point(aes(y = X70minus, color = "AT5G45470 E-"), shape = 16, size = 3) +
+  geom_line(aes(y = X70plus, color = "AT5G45470 E+"), linetype = "solid") +
+  geom_point(aes(y = X70plus, color = "AT5G45470 E+"), shape = 16, size = 3) +
+  geom_line(aes(y = Wtminus, color = "WT E-"), linetype = "solid") +
+  geom_point(aes(y = Wtminus, color = "WT E-"), shape = 16, size = 3) +
+  geom_line(aes(y = Wtplus, color = "WT E+"), linetype = "solid") +
+  geom_point(aes(y = Wtplus, color = "WT E+"), shape = 16, size = 3) +
   ggtitle("Kwitnienie w czasie") +  # Tytuł wykresu
   labs(x = "Dni", y = "Kwitnienie") +
   theme_minimal() +
-  scale_color_manual(values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C")) +
+  scale_color_manual(values = c("AT5G45470 E-" = "#A6CEE3", "AT5G45470 E+" = "#1F78B4", "WT E-" = "#B2DF8A", "WT E+" = "#33A02C"),
+                     name = "") +  # Definicja etykiety legendy
   theme(legend.position = "top") +
   theme(plot.title = element_text(hjust = 0.5))  # Środkowanie tytułu
 
@@ -42,17 +43,18 @@ print(plot)
 
 ```{r}
 plot <- ggplot(liscie, aes(x = DNI)) +
-  geom_line(aes(y = X70minus), color = "#A6CEE3", linetype = "solid") +
-  geom_point(aes(y = X70minus), color = "#A6CEE3", shape = 16, size = 3) +
-  geom_line(aes(y = X70plus), color = "#1F78B4", linetype = "solid") +
-  geom_point(aes(y = X70plus), color = "#1F78B4", shape = 16, size = 3) +
-  geom_line(aes(y = Wtminus), color = "#B2DF8A", linetype = "solid") +
-  geom_point(aes(y = Wtminus), color = "#B2DF8A", shape = 16, size = 3) +
-  geom_line(aes(y = Wtplus), color = "#33A02C", linetype = "solid") +
-  geom_point(aes(y = Wtplus), color = "#33A02C", shape = 16, size = 3) +
+  geom_line(aes(y = X70minus, color = "AT5G45470 E-"), linetype = "solid") +
+  geom_point(aes(y = X70minus, color = "AT5G45470 E-"), shape = 16, size = 3) +
+  geom_line(aes(y = X70plus, color = "AT5G45470 E+"), linetype = "solid") +
+  geom_point(aes(y = X70plus, color = "AT5G45470 E+"), shape = 16, size = 3) +
+  geom_line(aes(y = Wtminus, color = "WT E-"), linetype = "solid") +
+  geom_point(aes(y = Wtminus, color = "WT E-"), shape = 16, size = 3) +
+  geom_line(aes(y = Wtplus, color = "WT E+"), linetype = "solid") +
+  geom_point(aes(y = Wtplus, color = "WT E+"), shape = 16, size = 3) +
   labs(x = "Dni", y = "Liczba liści", title = "Liczba liści w czasie") +
   theme_minimal() +
-  scale_color_manual(values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C")) +
+  scale_color_manual(values = c("AT5G45470 E-" = "#A6CEE3", "AT5G45470 E+" = "#1F78B4", "WT E-" = "#B2DF8A", "WT E+" = "#33A02C"),
+                     name = "") +
   theme(legend.position = "top") +
   theme(plot.title = element_text(hjust = 0.5))  # Środkowanie tytułu
 
@@ -62,15 +64,16 @@ print(plot)
 
 ```{r}
 plot <- ggplot(kiel, aes(x = DNI)) +
-  geom_line(aes(y = X70), color = "#A6CEE3", linetype = "solid") +
-  geom_point(aes(y = X70), color = "#A6CEE3", shape = 16, size = 3) +  # Punkty dla linii X70
-  geom_line(aes(y = WT), color = "#33A02C", linetype = "solid") +
-  geom_point(aes(y = WT), color = "#33A02C", shape = 16, size = 3) +  # Punkty dla linii WT
+  geom_line(aes(y = X70, color = "AT5G45470"), linetype = "solid") +
+  geom_point(aes(y = X70, color = "AT5G45470"), shape = 16, size = 3) +
+  geom_line(aes(y = WT, color = "WT"), linetype = "solid") +
+  geom_point(aes(y = WT, color = "WT"), shape = 16, size = 3) +
   labs(x = "Dni", y = "Liczba wykiełkowanych roślin", title = "Liczba wykiełkowanych roślin w czasie") +
   theme_minimal() +
-  scale_color_manual(values = c("#A6CEE3", "#33A02C")) +  # Kolor linii
-  theme(legend.position = "top") + # Przeniesienie legendy na górę
-  theme(plot.title = element_text(hjust = 0.5))  # Środkowanie tytułu
+  scale_color_manual(values = c("AT5G45470" = "#A6CEE3", "WT" = "#33A02C"),
+                     name = "") +
+  theme(legend.position = "top") +
+  theme(plot.title = element_text(hjust = 0.5))
 
 # Wyświetlenie wykresu
 print(plot)
