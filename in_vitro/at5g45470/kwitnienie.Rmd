@@ -1,0 +1,53 @@
+---
+title: "AT5G45470 kwitnienie"
+output: html_notebook
+---
+
+```{r}
+require(ggplot2)
+require(readODS)
+require(dplyr)
+require(car)
+require(Rmisc)
+```
+
+```{r}
+dane <- read_ods('kwitnienie.ods')
+dane
+```
+```{r}
+print(colnames(dane))
+```
+
+```{r}
+# Tworzenie wykresu
+wykres <- ggplot(dane, aes(x = dni, y = ilosc_roslin, color = roslina.)) +
+  geom_point() +
+  labs(x = "Dni", y = "Ilość roślin", title = "Wykres dni vs. ilosc_roslin") +
+  scale_color_manual(values = c("at5g45470" = "#A6CEE3", "WT" = "#33A02C")) # Kolory dla różnych roślin
+
+# Wyświetlenie wykresu
+print(wykres)
+```
+```{r}
+srednie <- summarySE(dane, measurevar="ilosc_roslin", groupvars=c("dni", "roslina."))
+srednie
+```
+```{r}
+ggplot(srednie, aes(x=dni, y=ilosc_roslin, colour=roslina.)) + 
+    geom_errorbar(aes(ymin=ilosc_roslin-se, ymax=ilosc_roslin+se), width=.1) +
+    geom_line() +
+    xlab("Dni") +
+    ylab("Liczba wykiełkowanych roślin") +
+    ggtitle("Liczba wykiełkowanych roślin w czasie") +
+    geom_point() + 
+    scale_color_manual(values = c("at5g45470" = "#A6CEE3", "WT" = "#33A02C"),
+                     name = "") +
+    theme(legend.position = "top") +
+    theme(plot.title = element_text(hjust = 0.5))+
+    theme(
+    panel.background = element_rect(fill = "white"),  # Białe tło
+    panel.grid.major = element_line(color = "lightgray", size = 0.5), # Szare linie siatki
+    panel.grid.minor = element_blank()  # Wyłącz linie siatki pomocniczej
+  )
+```
