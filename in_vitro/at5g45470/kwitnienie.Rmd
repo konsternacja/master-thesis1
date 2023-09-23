@@ -34,20 +34,37 @@ srednie <- summarySE(dane, measurevar="ilosc_roslin", groupvars=c("dni", "roslin
 srednie
 ```
 ```{r}
-ggplot(srednie, aes(x=dni, y=ilosc_roslin, colour=roslina.)) + 
-    geom_errorbar(aes(ymin=ilosc_roslin-se, ymax=ilosc_roslin+se), width=.1) +
-    geom_line() +
+line_plot <- ggplot(srednie, aes(x = dni, y = ilosc_roslin, colour = roslina.)) + 
+    geom_errorbar(aes(ymin = ilosc_roslin - se, ymax = ilosc_roslin + se), width = 0.15, color = 'black') +
+    geom_line(linewidth = 0.7) +
     xlab("Dni") +
     ylab("Liczba wykiełkowanych roślin") +
     ggtitle("Liczba wykiełkowanych roślin w czasie") +
-    geom_point() + 
-    scale_color_manual(values = c("at5g45470" = "#A6CEE3", "WT" = "#33A02C"),
-                     name = "") +
-    theme(legend.position = "top") +
-    theme(plot.title = element_text(hjust = 0.5))+
+    geom_point(shape = 16, size = 3) + 
+    scale_color_manual(
+        values = c("at5g45470" = "#A6CEE3", "WT" = "#33A02C"),
+        labels = c("AT5G45470 E-", "WT E-"),
+        name = ""
+    ) +
+    theme(legend.position = "top", text = element_text(size = 20)) +
+    theme(plot.title = element_text(hjust = 0.5)) +
     theme(
-    panel.background = element_rect(fill = "white"),  # Białe tło
-    panel.grid.major = element_line(color = "lightgray", size = 0.5), # Szare linie siatki
-    panel.grid.minor = element_blank()  # Wyłącz linie siatki pomocniczej
-  )
+        panel.background = element_rect(fill = "white"),  # Białe tło
+        panel.grid.major = element_line(color = "lightgray", size = 0.5), # Szare linie siatki
+        panel.grid.minor = element_blank()  # Wyłącz linie siatki pomocniczej
+    )
+
+print(line_plot)
+```
+
+```{r}
+ggsave(filename = 'kielkowanie.png',plot = line_plot, width = 12, height = 8)
+```
+
+```{r}
+anova <- aov(data = srednie, formula = ilosc_roslin ~ dni * roslina.)
+summary(anova)
+```
+```{r}
+TukeyHSD(anova)
 ```

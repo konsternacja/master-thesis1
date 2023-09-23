@@ -13,79 +13,94 @@ require(car)
 ```
 
 ```{r}
-kiel <- read_ods("kielkowanie.ods")
 kwit <- read_ods('kwitnienie70.ods')
 liscie <- read_ods('liscie70.ods')
 print(kwit)
 ```
 
 ```{r}
-plot <- ggplot(kwit, aes(x = DNI)) +
-  geom_line(aes(y = X70minus, color = "AT5G45470 E-"), linetype = "solid") +
-  geom_point(aes(y = X70minus, color = "AT5G45470 E-"), shape = 16, size = 3) +
-  geom_line(aes(y = X70plus, color = "AT5G45470 E+"), linetype = "solid") +
-  geom_point(aes(y = X70plus, color = "AT5G45470 E+"), shape = 16, size = 3) +
-  geom_line(aes(y = Wtminus, color = "WT E-"), linetype = "solid") +
-  geom_point(aes(y = Wtminus, color = "WT E-"), shape = 16, size = 3) +
-  geom_line(aes(y = Wtplus, color = "WT E+"), linetype = "solid") +
-  geom_point(aes(y = Wtplus, color = "WT E+"), shape = 16, size = 3) +
-  ggtitle("Kwitnienie w czasie") +  # Tytuł wykresu
-  labs(x = "Dni", y = "Kwitnienie") +
-  theme_minimal() +
-  scale_color_manual(values = c("AT5G45470 E-" = "#A6CEE3", "AT5G45470 E+" = "#1F78B4", "WT E-" = "#B2DF8A", "WT E+" = "#33A02C"),
-                     name = "") +  # Definicja etykiety legendy
-  theme(legend.position = "top") +
-  theme(plot.title = element_text(hjust = 0.5))  # Środkowanie tytułu
+line_plot <- ggplot(kwit, aes(x = DNI)) +
+    geom_line(aes(y = X70minus, color = "AT5G45470 E-"), linetype = "solid", size = 0.7) +
+    geom_point(aes(y = X70minus, color = "AT5G45470 E-"), shape = 16, size = 3) +
+    geom_line(aes(y = X70plus, color = "AT5G45470 E+"), linetype = "solid", size = 0.7) +
+    geom_point(aes(y = X70plus, color = "AT5G45470 E+"), shape = 16, size = 3) +
+    geom_line(aes(y = Wtminus, color = "WT E-"), linetype = "solid", size = 0.7) +
+    geom_point(aes(y = Wtminus, color = "WT E-"), shape = 16, size = 3) +
+    geom_line(aes(y = Wtplus, color = "WT E+"), linetype = "solid", size = 0.7) +
+    geom_point(aes(y = Wtplus, color = "WT E+"), shape = 16, size = 3) +
+    ggtitle("Kwitnienie w czasie") +  # Tytuł wykresu
+    labs(x = "Dni", y = "Ilość roślin posiadających kwiat") +
+    scale_color_manual(
+        values = c(
+            "AT5G45470 E-" = "#A6CEE3",
+            "AT5G45470 E+" = "#1F78B4",
+            "WT E-" = "#B2DF8A",
+            "WT E+" = "#33A02C"
+        ),
+        name = "",
+        labels = c(
+            "AT5G45470 E-" = "AT5G45470 E-",
+            "AT5G45470 E+" = "AT5G45470 E+",
+            "WT E-" = "WT E-",
+            "WT E+" = "WT E+"
+        )
+    ) +  # Definicja etykiety legendy
+    theme(legend.position = "top", text = element_text(size = 20)) +
+    theme(plot.title = element_text(hjust = 0.5)) + # Środkowanie tytułu
+    theme(
+        panel.background = element_rect(fill = "white"),  # Białe tło
+        panel.grid.major = element_line(color = "lightgray", size = 0.5), # Szare linie siatki
+        panel.grid.minor = element_blank()  # Wyłącz linie siatki pomocniczej
+    )
 
 # Wyświetlenie wykresu
-print(plot)
+print(line_plot)
 ```
 
 ```{r}
-plot <- ggplot(liscie, aes(x = DNI)) +
-  geom_line(aes(y = X70minus, color = "AT5G45470 E-"), linetype = "solid") +
-  geom_point(aes(y = X70minus, color = "AT5G45470 E-"), shape = 16, size = 3) +
-  geom_line(aes(y = X70plus, color = "AT5G45470 E+"), linetype = "solid") +
-  geom_point(aes(y = X70plus, color = "AT5G45470 E+"), shape = 16, size = 3) +
-  geom_line(aes(y = Wtminus, color = "WT E-"), linetype = "solid") +
-  geom_point(aes(y = Wtminus, color = "WT E-"), shape = 16, size = 3) +
-  geom_line(aes(y = Wtplus, color = "WT E+"), linetype = "solid") +
-  geom_point(aes(y = Wtplus, color = "WT E+"), shape = 16, size = 3) +
-  labs(x = "Dni", y = "Liczba liści", title = "Liczba liści w czasie") +
-  theme_minimal() +
-  scale_color_manual(values = c("AT5G45470 E-" = "#A6CEE3", "AT5G45470 E+" = "#1F78B4", "WT E-" = "#B2DF8A", "WT E+" = "#33A02C"),
-                     name = "") +
-  theme(legend.position = "top") +
-  theme(plot.title = element_text(hjust = 0.5))  # Środkowanie tytułu
-
-# Wyświetlenie wykresu
-print(plot)
+ggsave(filename = 'kwitnienie70.png',plot = line_plot, width = 12, height = 8)
 ```
 
 ```{r}
-plot <- ggplot(kiel, aes(x = DNI)) +
-  geom_line(aes(y = X70, color = "AT5G45470"), linetype = "solid") +
-  geom_point(aes(y = X70, color = "AT5G45470"), shape = 16, size = 3) +
-  geom_line(aes(y = WT, color = "WT"), linetype = "solid") +
-  geom_point(aes(y = WT, color = "WT"), shape = 16, size = 3) +
-  labs(x = "Dni", y = "Liczba wykiełkowanych roślin", title = "Liczba wykiełkowanych roślin w czasie") +
-  theme_minimal() +
-  scale_color_manual(values = c("AT5G45470" = "#A6CEE3", "WT" = "#33A02C"),
-                     name = "") +
-  theme(legend.position = "top") +
-  theme(plot.title = element_text(hjust = 0.5))
-
+line_plot2 <- ggplot(liscie, aes(x = DNI)) +
+    geom_line(aes(y = X70minus, color = "AT5G45470 E-"), linetype = "solid", size = 0.7) +
+    geom_point(aes(y = X70minus, color = "AT5G45470 E-"), shape = 16, size = 3) +
+    geom_line(aes(y = X70plus, color = "AT5G45470 E+"), linetype = "solid", size = 0.7) +
+    geom_point(aes(y = X70plus, color = "AT5G45470 E+"), shape = 16, size = 3) +
+    geom_line(aes(y = Wtminus, color = "WT E-"), linetype = "solid", size = 0.7) +
+    geom_point(aes(y = Wtminus, color = "WT E-"), shape = 16, size = 3) +
+    geom_line(aes(y = Wtplus, color = "WT E+"), linetype = "solid", size = 0.7) +
+    geom_point(aes(y = Wtplus, color = "WT E+"), shape = 16, size = 3) +
+    labs(x = "Dni", y = "Sumaryczna liczba liści", title = "Liczba liści w czasie") +
+    scale_color_manual(
+        values = c(
+            "AT5G45470 E-" = "#A6CEE3",
+            "AT5G45470 E+" = "#1F78B4",
+            "WT E-" = "#B2DF8A",
+            "WT E+" = "#33A02C"
+        ),
+        name = "",
+        labels = c(
+            "AT5G45470 E-" = "AT5G45470 E-",
+            "AT5G45470 E+" = "AT5G45470 E+",
+            "WT E-" = "WT E-",
+            "WT E+" = "WT E+"
+        )
+    ) +
+    theme(legend.position = "top") +
+    theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 20)) + # Środkowanie tytułu
+    theme(
+        panel.background = element_rect(fill = "white"),  # Białe tło
+        panel.grid.major = element_line(color = "lightgray", size = 0.5), # Szare linie siatki
+        panel.grid.minor = element_blank()  # Wyłącz linie siatki pomocniczej
+    )
 # Wyświetlenie wykresu
-print(plot)
+print(line_plot2)
 ```
 
 ```{r}
-t.test <- t.test(kiel$X70,kiel$WT, var.equal = TRUE)
-t.test
+ggsave(filename = 'liscie70.png',plot = line_plot2, width = 12, height = 8)
 ```
-
-
-Nie ma różnicy w kiełkowaniu.
 
 ```{r}
 kwit2 <- read_ods('kwitnienie70_anova.ods')

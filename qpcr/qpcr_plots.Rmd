@@ -78,27 +78,29 @@ df
 ```{r}
 means <- df %>%
   group_by(plant) %>% 
-  summarise(fold.change = mean(fold.change))
+  dplyr::summarise(fold.change = mean(fold.change))
 means$error.bars <- c(9.42, 1.56, 5.14, 1.24)
 means
 
 bar_plot <- ggplot(df, aes(x = plant, y = fold.change, fill = plant)) +
   geom_bar(data=means, stat = "identity", alpha=0.8) +
+  ggtitle("Zmiana ekspresji genów w zależności od inokulacji roślin endofitem") +
   geom_point(alpha=0.8) +
   labs(x = "Grupa roślin", y = "Zmiana ekspresji genu") +
   scale_fill_manual(values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C")) +
   geom_hline(yintercept = 1, linetype = "dashed", color = "grey") +
-  theme(legend.position = "none") +
+  theme(legend.position = "none", text = element_text(size = 20)) +
   geom_errorbar(data=means, aes(ymin=fold.change - error.bars, ymax=fold.change+error.bars), width = 0.25) +
   theme(panel.background = element_rect(fill = "white"),  # Białe tło
-        panel.grid.major = element_line(color = "lightgrey"),  # Szare osie siatki
+        panel.grid.major = element_line(color = "lightgrey"), 
+        legend.title.align = 0.5,# Szare osie siatki
         panel.grid.minor = element_blank())  # Usunięcie siatki podrzędnej
 
 bar_plot
 ```
 
 ```{r}
-ggsave(filename = 'pfaffl.png',plot = bar_plot)
+ggsave(filename = 'pfaffl.png',plot = bar_plot, width = 12, height = 8)
 ```
 
 ```{r}
