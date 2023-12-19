@@ -1,0 +1,50 @@
+---
+title: "AT5G45470 & AT545480 qPCR"
+output: html.notebook
+---
+
+qPCR analysis and plots for my master thesis.
+
+```{r}
+require(ggplot2)
+require(readxl)
+require(dplyr)
+```
+
+
+```{r}
+plant <- c(rep("70E-", 1), rep("70E+", 1), rep("80E-", 1), rep("80E+", 1))
+fold.change <- c(3.5,62.6,0,0)
+df <- data.frame(plant, fold.change)
+df
+```
+
+```{r}
+means <- df %>%
+  group_by(plant) %>% 
+  dplyr::summarise(fold.change = mean(fold.change))
+means$error.bars <- c(4.4, 9.6, 0, 0)
+means
+
+bar_plot <- ggplot(df, aes(x = plant, y = fold.change, fill = plant)) +
+  geom_bar(data=means, stat = "identity", alpha=0.8) +
+  ggtitle("Zmiana ilości włośników w zależności od inokulacji i mutacji") +
+  geom_point(alpha=0.8) +
+  labs(x = "Grupa roślin", y = "Ilość włośników korzenia głównego") +
+  scale_fill_manual(values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C")) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "grey") +
+  theme(legend.position = "none", text = element_text(size = 20)) +
+  geom_errorbar(data=means, aes(ymin=fold.change - error.bars, ymax=fold.change+error.bars), width = 0.25) +
+  theme(panel.background = element_rect(fill = "white"),  # Białe tło
+        panel.grid.major = element_line(color = "lightgrey"), 
+        legend.title.align = 0.5,# Szare osie siatki
+        panel.grid.minor = element_blank()) +  # Usunięcie siatki podrzędnej
+  theme(plot.title = element_text(hjust = 0.5))  # Wycentrowanie tytułu
+
+bar_plot
+```
+
+```{r}
+ggsave(filename = 'wlosniki.png',plot = bar_plot, width = 12, height = 8)
+```
+
