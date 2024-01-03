@@ -1,0 +1,391 @@
+---
+title: "3rd measurements analysis"
+output: html_document
+date: "2024-01-03"
+---
+
+```{r}
+library(tidyverse)
+library(broom)
+library(dplyr)
+library(reshape)
+library(ggsignif)
+```
+
+```{r}
+data_all <- read.csv('/home/konsternacja/Git/master-thesis1/fluorCAM/measurement3/concatenated_file.tsv', sep = '\t')
+colnames(data_all)
+```
+
+```{r}
+data_all <- data_all %>%
+  mutate(across(c(1:104), ~ ./Size..pixels.))
+data_all <- data.frame(data_all)
+data_all
+```
+
+```{r}
+data_all <- data_all %>%
+  mutate(across(c(1), as.factor))
+data_all
+```
+
+```{r}
+data_all <- data_all[, -which(names(data_all) == "Size..pixels.")]
+data_all
+```
+
+```{r}
+res <- aov(groups ~ ., data=data_all)
+summary(res)
+signif.cols <- summary(res)[[1]] %>% 
+  filter(`Pr(>F)` <= 0.05) %>% 
+  rownames %>% 
+  trimws
+signif.cols
+```
+
+```{r}
+# Kolumna z grupami
+data_all$groups <- as.factor(data_all$groups)
+groups <- data_all$groups
+significant_columns <- list()
+
+# Pętla do analizy wariancji dla każdej kolumny
+for (column_name in colnames(data_all)) {
+  if (column_name != "groups") {  # Pomijamy kolumnę z grupami
+    # Tworzymy formułę ANOVA
+    formula <- as.formula(paste(column_name, "~ groups"))
+
+    # Przeprowadzamy ANOVA
+    anova_result <- aov(formula, data = data_all)
+
+    # Wyświetlamy wyniki
+    # print(paste("Analiza wariancji dla", column_name))
+    # print(summary(anova_result))
+    
+    df_anova <- data.frame(summary(anova_result)[[1]])
+    p_value_anova <- df_anova$Pr..F.[1]
+    
+    # Przeprowadzamy test Tukeya
+    tukey_result <- TukeyHSD(anova_result)
+    
+     # Jeśli p-value jest mniejsze niż 0.1, dodaj nazwę kolumny do significant_columns
+    if (p_value_anova < 0.05) {
+      significant_columns[[length(significant_columns) + 1]] <- column_name
+      print(paste("Test Tukeya dla", column_name))
+      print(tukey_result)
+    }
+  }
+}
+```
+
+```{r}
+significant_cols <- trimws(significant_columns)
+significant_cols
+```
+
+```{r}
+plot1 <- data_all %>% ggplot(aes(x=groups, y=Fq_L2, fill=groups)) +
+  geom_boxplot(outlier.size = 0.5, outlier.colour = "red") +
+  scale_fill_manual(
+        values = c(
+            "2" = "#A6CEE3",
+            "3" = "#1F78B4",
+            "0" = "#B2DF8A",
+            "1" = "#33A02C"
+        ),
+        name = "",
+        labels = c(
+            "2" = "AT5G45470 E-",
+            "3" = "AT5G45470 E+",
+            "0" = "WT E-",
+            "1" = "WT E+"
+        )) +
+  geom_signif(comparisons = list(c("2", "1")), map_signif_level = T, test="t.test", step_increase = 0.2) +
+  labs(x = "",
+       title = "Fq_L2 zależności od grupy roślin") +
+  theme(legend.position = "top", text = element_text(size = 20)) +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    theme(
+        panel.background = element_rect(fill = "white"),  # Białe tło
+        panel.grid.major = element_line(color = "lightgray", size = 0.5), # Szare linie siatki
+        panel.grid.minor = element_blank(),  # Wyłącz linie siatki pomocniczej
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank()
+    )
+
+plot1
+```
+
+
+```{r}
+plot2 <- data_all %>% ggplot(aes(x=groups, y=QY_L2, fill=groups)) +
+  geom_boxplot(outlier.size = 0.5, outlier.colour = "red") +
+  scale_fill_manual(
+        values = c(
+            "2" = "#A6CEE3",
+            "3" = "#1F78B4",
+            "0" = "#B2DF8A",
+            "1" = "#33A02C"
+        ),
+        name = "",
+        labels = c(
+            "2" = "AT5G45470 E-",
+            "3" = "AT5G45470 E+",
+            "0" = "WT E-",
+            "1" = "WT E+"
+        )) +
+  geom_signif(comparisons = list(c("2", "1")), map_signif_level = T, test="t.test", step_increase = 0.2) +
+  labs(x = "",
+       title = "QY_L2 w zależności od grupy roślin") +
+  theme(legend.position = "top", text = element_text(size = 20)) +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    theme(
+        panel.background = element_rect(fill = "white"),  # Białe tło
+        panel.grid.major = element_line(color = "lightgray", size = 0.5), # Szare linie siatki
+        panel.grid.minor = element_blank(),  # Wyłącz linie siatki pomocniczej
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank()
+    )
+plot2
+```
+
+```{r}
+plot3 <- data_all %>% ggplot(aes(x=groups, y=qP_L2, fill=groups)) +
+  geom_boxplot(outlier.size = 0.5, outlier.colour = "red") +
+  scale_fill_manual(
+        values = c(
+            "2" = "#A6CEE3",
+            "3" = "#1F78B4",
+            "0" = "#B2DF8A",
+            "1" = "#33A02C"
+        ),
+        name = "",
+        labels = c(
+            "2" = "AT5G45470 E-",
+            "3" = "AT5G45470 E+",
+            "0" = "WT E-",
+            "1" = "WT E+"
+        )) +
+  geom_signif(comparisons = list(c("2", "1")), map_signif_level = T, test="t.test", step_increase = 0.2) +
+  labs(x = "",
+       title = "qP_L2 w zależności od grupy roślin") +
+  theme(legend.position = "top", text = element_text(size = 20)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+      panel.background = element_rect(fill = "white"),  # Białe tło
+      panel.grid.major = element_line(color = "lightgray", size = 0.5), # Szare linie siatki
+      panel.grid.minor = element_blank(),  # Wyłącz linie siatki pomocniczej
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank()
+    )
+plot3
+```
+```{r}
+plot4 <- data_all %>% ggplot(aes(x=groups, y=qL_L2, fill=groups)) +
+  geom_boxplot(outlier.size = 0.5, outlier.colour = "red") +
+  scale_fill_manual(
+        values = c(
+            "2" = "#A6CEE3",
+            "3" = "#1F78B4",
+            "0" = "#B2DF8A",
+            "1" = "#33A02C"
+        ),
+        name = "",
+        labels = c(
+            "2" = "AT5G45470 E-",
+            "3" = "AT5G45470 E+",
+            "0" = "WT E-",
+            "1" = "WT E+"
+        )) +
+  geom_signif(comparisons = list(c("2", "1")), map_signif_level = T, test="t.test", step_increase = 0.2) +
+  labs(x = "",
+       title = "qL_L2 w zależności od grupy roślin") +
+  theme(legend.position = "top", text = element_text(size = 20)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+      panel.background = element_rect(fill = "white"),  # Białe tło
+      panel.grid.major = element_line(color = "lightgray", size = 0.5), # Szare linie siatki
+      panel.grid.minor = element_blank(),  # Wyłącz linie siatki pomocniczej
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank()
+    )
+plot4
+```
+
+```{r}
+plot5 <- data_all %>% ggplot(aes(x=groups, y=Rfd_Lss, fill=groups)) +
+  geom_boxplot(outlier.size = 0.5, outlier.colour = "red") +
+  scale_fill_manual(
+        values = c(
+            "2" = "#A6CEE3",
+            "3" = "#1F78B4",
+            "0" = "#B2DF8A",
+            "1" = "#33A02C"
+        ),
+        name = "",
+        labels = c(
+            "2" = "AT5G45470 E-",
+            "3" = "AT5G45470 E+",
+            "0" = "WT E-",
+            "1" = "WT E+"
+        )) +
+  geom_signif(comparisons = list(c("2", "1")), map_signif_level = T, test="t.test", step_increase = 0.1) +
+  labs(x = "",
+       title = "Rfd_Lss w zależności od grupy roślin") +
+  theme(legend.position = "top", text = element_text(size = 20)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+      panel.background = element_rect(fill = "white"),  # Białe tło
+      panel.grid.major = element_line(color = "lightgray", size = 0.5), # Szare linie siatki
+      panel.grid.minor = element_blank(),  # Wyłącz linie siatki pomocniczej
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank()
+    )
+plot5
+```
+```{r}
+ggsave('rfd_lss.png', plot=plot5,  width = 24, height = 16)
+```
+
+```{r}
+out_rfd <- boxplot.stats(data_all$Rfd_Lss)$out
+out_rfd_idx <-  which(data_all$Rfd_Lss %in% c(out_rfd))
+out_rfd_idx
+```
+```{r}
+out_qll2 <- boxplot.stats(data_all$qL_L2)$out
+out_qll2_idx <-  which(data_all$qL_L2 %in% c(out_qll2))
+out_qll2_idx
+```
+```{r}
+out_qpl2 <- boxplot.stats(data_all$qP_L2)$out
+out_qpl2_idx <- which(data_all$qP_L2 %in% c(out_qpl2))
+out_qpl2_idx
+```
+```{r}
+out_qyl2 <- boxplot.stats(data_all$QY_L2)$out
+out_qyl2_idx <- which(data_all$QY_L2 %in% c(out_qyl2))
+out_qyl2_idx
+```
+Now I will get rid of rows: 48, 88, 97, 105, 111, 145, 146, 151, 152, 161, 191 for anova analysis to check whether now there will be the same statistical significance of the differences.
+```{r}
+data_all2 <- data_all[-c(48, 88, 97, 105, 111, 145, 146, 151, 152, 161, 191),]
+data_all2
+```
+
+```{r}
+# Kolumna z grupami
+data_all2$groups <- as.factor(data_all2$groups)
+groups <- data_all2$groups
+significant_columns <- list()
+
+# Pętla do analizy wariancji dla każdej kolumny
+for (column_name in colnames(data_all2)) {
+  if (column_name != "groups") {  # Pomijamy kolumnę z grupami
+    # Tworzymy formułę ANOVA
+    formula <- as.formula(paste(column_name, "~ groups"))
+
+    # Przeprowadzamy ANOVA
+    anova_result <- aov(formula, data = data_all2)
+
+    # Wyświetlamy wyniki
+    print(paste("Analiza wariancji dla", column_name))
+    print(summary(anova_result))
+    
+    df_anova <- data.frame(summary(anova_result)[[1]])
+    p_value_anova <- df_anova$Pr..F.[1]
+    
+    # Przeprowadzamy test Tukeya
+    tukey_result <- TukeyHSD(anova_result)
+    
+     # Jeśli p-value jest mniejsze niż 0.1, dodaj nazwę kolumny do significant_columns
+    if (p_value_anova < 0.05) {
+      significant_columns[[length(significant_columns) + 1]] <- column_name
+      print(paste("Test Tukeya dla", column_name))
+      print(tukey_result)
+    }
+  }
+}
+```
+
+```{r}
+significant_cols2 <- trimws(significant_columns)
+significant_cols2
+```
+
+```{r}
+plot6 <- data_all2 %>% ggplot(aes(x=groups, y=Rfd_Lss, fill=groups)) +
+  geom_boxplot(outlier.size = 0.5, outlier.colour = "red") +
+  scale_fill_manual(
+        values = c(
+            "2" = "#A6CEE3",
+            "3" = "#1F78B4",
+            "0" = "#B2DF8A",
+            "1" = "#33A02C"
+        ),
+        name = "",
+        labels = c(
+            "2" = "AT5G45470 E-",
+            "3" = "AT5G45470 E+",
+            "0" = "WT E-",
+            "1" = "WT E+"
+        )) +
+  geom_signif(comparisons = list(c("2", "0")), map_signif_level = T, test="t.test", step_increase = 0.2) +
+  labs(x = "",
+       title = "Rfd_Lss w zależności od grupy roślin") +
+  theme(legend.position = "top", text = element_text(size = 20)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+      panel.background = element_rect(fill = "white"),  # Białe tło
+      panel.grid.major = element_line(color = "lightgray", size = 0.5), # Szare linie siatki
+      panel.grid.minor = element_blank(),  # Wyłącz linie siatki pomocniczej
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank()
+    )
+plot6
+```
+```{r}
+plot7 <- data_all %>% ggplot(aes(x=groups, y=QY_Lss, fill=groups)) +
+  geom_boxplot(outlier.size = 0.5, outlier.colour = "red") +
+  scale_fill_manual(
+        values = c(
+            "2" = "#A6CEE3",
+            "3" = "#1F78B4",
+            "0" = "#B2DF8A",
+            "1" = "#33A02C"
+        ),
+        name = "",
+        labels = c(
+            "2" = "AT5G45470 E-",
+            "3" = "AT5G45470 E+",
+            "0" = "WT E-",
+            "1" = "WT E+"
+        )) +
+  geom_signif(comparisons = list(c("2", "0")), map_signif_level = T, test="t.test", step_increase = 0.2) +
+  labs(x = "",
+       title = "QY_Lss w zależności od grupy roślin") +
+  theme(legend.position = "top", text = element_text(size = 20)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+      panel.background = element_rect(fill = "white"),  # Białe tło
+      panel.grid.major = element_line(color = "lightgray", size = 0.5), # Szare linie siatki
+      panel.grid.minor = element_blank(),  # Wyłącz linie siatki pomocniczej
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank()
+    )
+plot7
+```
+
+
+```{r}
+ggsave(filename = 'npq_d3__pomiar1.png',plot = plot1, width = 12, height = 8)
+ggsave(filename = 'npq_d2_pomiar1.png',plot = plot2, width = 12, height = 8)
+ggsave(filename = 'fq_l1_pomiar1.png',plot = plot3, width = 12, height = 8)
+```
+
+
+
+
+4HUJ
