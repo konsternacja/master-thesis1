@@ -1,0 +1,111 @@
+---
+title: "analysis"
+output: html_document
+date: "2023-12-14"
+---
+
+```{r}
+library(tidyverse)
+library(broom)
+library(dplyr)
+library(reshape)
+library(ggsignif)
+```
+
+```{r}
+data_all <- read.csv('/home/konsternacja/Git/master-thesis1/fluorCAM/measurement2/concatenated_file.tsv', sep = '\t')
+colnames(data_all)
+```
+
+
+```{r}
+# Kolumna z grupami
+data_all$plant <- as.factor(data_all$plant)
+data_all$inoculation <- as.factor(data_all$inoculation)
+plant <- data_all$plant
+inoculation <- data_all$inoculation
+significant_columns <- list()
+
+# Pętla do analizy wariancji dla każdej kolumny
+for (column_name in colnames(data_all)) {
+  if (column_name != "plant" & column_name != "inoculation") {  # Sprawdzamy kolumny inne niż 'plant' i 'inoculation'
+    # Tworzymy formułę ANOVA
+    formula <- as.formula(paste(column_name, "~ plant * inoculation"))
+
+    # Przeprowadzamy ANOVA
+    anova_result <- aov(formula, data = data_all)
+
+    # Wyświetlamy wyniki
+    # print(paste("Analiza wariancji dla", column_name))
+    # print(summary(anova_result))
+    
+    df_anova <- data.frame(summary(anova_result)[[1]])
+    p_value_anova <- df_anova$Pr..F.[1]
+    
+    # Przeprowadzamy test Tukeya
+    tukey_result <- TukeyHSD(anova_result)
+    
+     # Jeśli p-value jest mniejsze niż 0.05, dodaj nazwę kolumny do significant_columns
+    if (p_value_anova < 0.05) {
+      significant_columns[[length(significant_columns) + 1]] <- column_name
+      print(paste("Test Tukeya dla", column_name))
+      print(tukey_result)
+    }
+  }
+}
+```
+
+```{r}
+significant_cols <- trimws(significant_columns)
+significant_cols
+```
+```{r}
+plot1 <- data_all %>% ggplot(aes(x=plant, y=Rfd_Lss, fill=inoculation)) +
+  geom_boxplot(outlier.size = 0.5, outlier.colour = "red") +
+  scale_fill_manual(values = c("#66CCCC", "#006666"), name = "") +
+  labs(x = "",
+       title = "Rfd_Lss w zależności od grupy roślin, pomiar 2") +
+  geom_signif(comparisons = list(c("AT5G45470","WT")), 
+              map_signif_level = TRUE, test = "t.test", step_increase = 0.2) +
+    scale_y_continuous(limits =c(0, 6)) +
+  theme(legend.position = "top", text = element_text(size = 20)) +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    theme(
+        panel.background = element_rect(fill = "white"),  # Białe tło
+        panel.grid.major = element_line(color = "lightgray", linewidth = 0.5), # Szare linie siatki
+        panel.grid.minor = element_blank(),  # Wyłącz linie siatki pomocniczej
+    )
+
+plot1
+```
+
+
+```{r}
+plot3 <- data_all %>% ggplot(aes(x=plant, y=NPQ_Lss, fill=inoculation)) +
+  geom_boxplot(outlier.size = 0.5, outlier.colour = "red") +
+  scale_fill_manual(values = c("#66CCCC", "#006666"), name = "") +
+  labs(x = "",
+       title = "NPQ_Lss w zależności od grupy roślin, pomiar 2") +
+  geom_signif(comparisons = list(c("AT5G45470","WT")), 
+              map_signif_level = TRUE, test = "t.test", step_increase = 0.2) +
+  scale_y_continuous(limits =c(0, 3)) +
+  theme(legend.position = "top", text = element_text(size = 20)) +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    theme(
+        panel.background = element_rect(fill = "white"),  # Białe tło
+        panel.grid.major = element_line(color = "lightgray", linewidth = 0.5), # Szare linie siatki
+        panel.grid.minor = element_blank(),  # Wyłącz linie siatki pomocniczej
+    )
+
+plot3
+```
+
+
+```{r}
+ggsave(filename = '/home/konsternacja/Git/master-thesis1/figures/plots/rfd_lss_pomiar2.png',plot = plot1, width = 12, height = 8)
+ggsave(filename = '/home/konsternacja/Git/master-thesis1/figures/plots/npq_lss_pomiar2.png',plot = plot3, width = 12, height = 8)
+```
+
+
+
+
