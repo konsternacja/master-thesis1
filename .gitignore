@@ -1,7 +1,8 @@
 figures/*
-# fluorCAM/measurements/*
-# *.env
-# *.RData
-# *.Rhistory
-# *.vscode
-# /protocols&primers/at5g45472.docx
+fluorCAM/measurements/*
+
+*.env
+*.RData
+*.Rhistory
+*.vscode
+/protocols&primers/at5g45472.docx
