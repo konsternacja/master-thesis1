@@ -5,7 +5,7 @@ fluorcam/data/*
 70e+2/
 figures/
 
-.env
-.RData
-.Rhistory
-at5g45472.docx
+*.env
+*.RData
+*.Rhistory
+/protocols&primers/at5g45472.docx
