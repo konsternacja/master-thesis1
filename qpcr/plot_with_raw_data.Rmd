@@ -4,22 +4,43 @@ output: html_notebook
 ---
 
 ```{r}
-plant <- c(rep("70E-", 3), rep("70E+", 3), rep("80E-", 3), rep("80E+", 3))
-fold.change <- c(3.28, 0.33, 0.92, 12.01, 29.38, 14.37, 0.52, 0.7, 2.75, 10.71, 14.09, 3.96)
+library(ggplot2)
+library(ggsignif)
+```
+
+```{r}
+plant <- c(rep("AT5G45470 E-", 9), rep("AT5G45470 E+", 9), rep("AT5G45480 E-", 9), rep("AT5G45480 E+", 9))
+fold.change <- c(3.28, 3.28, 3.28, 0.33, 0.33, 0.33, 0.92, 0.92, 0.92, 12.01, 12.01, 12.01, 29.38, 29.38, 29.38, 14.37, 14.37, 14.37, 0.52, 0.52, 0.52, 0.7, 0.7, 0.7, 2.75, 2.75, 2.75, 10.71, 10.71, 10.71, 14.09, 14.09, 14.09, 3.96, 3.96, 3.96)
 df <- data.frame(plant, fold.change)
 df
 ```
 
 ```{r}
-means <- df %>%
-  group_by(plant) %>% 
-  summarise(fold.change = mean(fold.change))
-means$error.bars <- c(9.42, 1.56, 5.14, 1.24)
-means
-
-bar_plot <- ggplot(df, aes(x = plant, y = fold.change, fill = plant)) +
-  geom_bar(data=means, stat = "identity", alpha=0.8) +
+qpcr_plot <- ggplot(df, aes(x = plant, y = fold.change, fill = plant)) +
+  geom_boxplot(outlier.size = 0.5, outlier.colour = "red") +
+  ggtitle("Zmiana ekspresji w zalezności od grupy roślin") +
   geom_point(alpha=0.8) +
-  geom_errorbar(data=means, aes(ymin=fold.change - error.bars, ymax=fold.change+error.bars), width = 0.25)
-bar_plot
+  labs(x = "", y = "Fold change") +
+  scale_fill_manual(values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C"),
+                    name = "") +
+  geom_signif(comparisons = list(c("AT5G45470 E-", "AT5G45470 E+"), c("AT5G45480 E-","AT5G45480 E+")), map_signif_level = T,  test="t.test", step_increase = 0.2) +
+  theme(legend.position = "top", text = element_text(size = 20)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+      panel.background = element_rect(fill = "white"),  # Białe tło
+      panel.grid.major = element_line(color = "lightgray", size = 0.5), # Szare linie siatki
+      panel.grid.minor = element_blank(),  # Wyłącz linie siatki pomocniczej
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank()
+    )
+qpcr_plot
+```
+```{r}
+ggsave(filename = 'pfaffl.png',plot = qpcr_plot, width = 12, height = 8)
+```
+
+```{r}
+anova <- aov(fold.change ~ plant)
+summary(anova)
+TukeyHSD(anova)
 ```

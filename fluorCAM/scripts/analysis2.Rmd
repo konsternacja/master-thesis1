@@ -9,11 +9,24 @@ library(tidyverse)
 library(broom)
 library(dplyr)
 library(reshape)
-library(ggsignif)
+library(multcompView)
+library(dotenv)
 ```
 
 ```{r}
-data_all <- read.csv('/home/konsternacja/Git/master-thesis1/fluorCAM/measurement2/concatenated_file.tsv', sep = '\t')
+load_dot_env(file = ".env")
+```
+
+
+```{r}  
+path <- Sys.getenv("MY_PATH")
+path
+```
+
+```{r}
+file_path <- file.path(path, "fluorCAM/measurements/measurement2/concatenated_file.tsv")
+
+data_all <- read.csv(file_path, sep = '\t')
 colnames(data_all)
 ```
 
@@ -35,9 +48,6 @@ for (column_name in colnames(data_all)) {
     # Przeprowadzamy ANOVA
     anova_result <- aov(formula, data = data_all)
 
-    # Wyświetlamy wyniki
-    # print(paste("Analiza wariancji dla", column_name))
-    # print(summary(anova_result))
     
     df_anova <- data.frame(summary(anova_result)[[1]])
     p_value_anova <- df_anova$Pr..F.[1]
@@ -48,8 +58,6 @@ for (column_name in colnames(data_all)) {
      # Jeśli p-value jest mniejsze niż 0.05, dodaj nazwę kolumny do significant_columns
     if (p_value_anova < 0.05) {
       significant_columns[[length(significant_columns) + 1]] <- column_name
-      print(paste("Test Tukeya dla", column_name))
-      print(tukey_result)
     }
   }
 }
@@ -59,52 +67,120 @@ for (column_name in colnames(data_all)) {
 significant_cols <- trimws(significant_columns)
 significant_cols
 ```
+
+
 ```{r}
-plot1 <- data_all %>% ggplot(aes(x=plant, y=Rfd_Lss, fill=inoculation)) +
-  geom_boxplot(outlier.size = 0.5, outlier.colour = "red") +
-  scale_fill_manual(values = c("#66CCCC", "#006666"), name = "") +
-  labs(x = "",
-       title = "Rfd_Lss w zależności od grupy roślin, pomiar 2") +
-  geom_signif(comparisons = list(c("AT5G45470","WT")), 
-              map_signif_level = TRUE, test = "t.test", step_increase = 0.2) +
-    scale_y_continuous(limits =c(0, 6)) +
+# Create a new column 'group'
+data_all$group <- with(data_all, interaction(inoculation, plant, drop = TRUE))
+
+# Convert 'group' to a numeric representation
+data_all$group <- as.numeric(data_all$group) - 1
+
+# Print the resulting data_all table
+print(data_all)
+```
+
+```{r}
+data_all$group <- as.factor(data_all$group)
+
+# anova
+anova <- aov(Rfd_Lss ~ group, data = data_all)
+
+print(anova)
+
+# Tukey's test
+tukey <- TukeyHSD(anova)
+
+print(tukey)
+
+# compact letter display
+cld <- multcompLetters4(anova, tukey)
+
+# table with factors and 3rd quantile
+dt <- group_by(data_all, group) %>%
+  summarise(w=mean(Rfd_Lss), sd = sd(Rfd_Lss)) %>%
+  arrange(desc(w))
+
+# extracting the compact letter display and adding to the Tk table
+cld <- as.data.frame.list(cld$group)
+dt$cld <- cld$Letters
+
+
+rfd_pomiar2 <- ggplot(dt, aes(group, w, fill = factor(group))) + 
+  geom_bar(stat = "identity", show.legend = TRUE) +
+  geom_errorbar(aes(ymin = w - sd, ymax = w + sd), width = 0.2) +
+  ggtitle("Rfd w zależności od grupy roślin, pomiar 2") +
+  labs(x = "", y = "Rfd") +
+  geom_text(aes(label = cld, y = w + sd), vjust = -0.5) +
+  scale_fill_manual(
+    values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C"),
+    breaks = c(0, 1, 2, 3),
+    labels = c("AT5G45470 E-", "AT5G45470 E+", "WT E-", "WT"),
+    name = ""
+  ) +
   theme(legend.position = "top", text = element_text(size = 20)) +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    theme(
-        panel.background = element_rect(fill = "white"),  # Białe tło
-        panel.grid.major = element_line(color = "lightgray", linewidth = 0.5), # Szare linie siatki
-        panel.grid.minor = element_blank(),  # Wyłącz linie siatki pomocniczej
-    )
-
-plot1
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+    panel.background = element_rect(fill = "white"),
+    panel.grid.major = element_line(color = "lightgray", size = 0.5),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank()
+  )
 ```
 
-
 ```{r}
-plot3 <- data_all %>% ggplot(aes(x=plant, y=NPQ_Lss, fill=inoculation)) +
-  geom_boxplot(outlier.size = 0.5, outlier.colour = "red") +
-  scale_fill_manual(values = c("#66CCCC", "#006666"), name = "") +
-  labs(x = "",
-       title = "NPQ_Lss w zależności od grupy roślin, pomiar 2") +
-  geom_signif(comparisons = list(c("AT5G45470","WT")), 
-              map_signif_level = TRUE, test = "t.test", step_increase = 0.2) +
-  scale_y_continuous(limits =c(0, 3)) +
+data_all$group <- as.factor(data_all$group)
+
+# anova
+anova <- aov(NPQ_Lss ~ group, data = data_all)
+
+print(anova)
+
+# Tukey's test
+tukey <- TukeyHSD(anova)
+
+print(tukey)
+
+# compact letter display
+cld <- multcompLetters4(anova, tukey)
+
+# table with factors and 3rd quantile
+dt <- group_by(data_all, group) %>%
+  summarise(w=mean(NPQ_Lss), sd = sd(NPQ_Lss)) %>%
+  arrange(desc(w))
+
+# extracting the compact letter display and adding to the Tk table
+cld <- as.data.frame.list(cld$group)
+dt$cld <- cld$Letters
+
+
+npq_pomiar2 <- ggplot(dt, aes(group, w, fill = factor(group))) + 
+  geom_bar(stat = "identity", show.legend = TRUE) +
+  geom_errorbar(aes(ymin = w - sd, ymax = w + sd), width = 0.2) +
+  ggtitle("NPQ w zależności od grupy roślin, pomiar 2") +
+  labs(x = "", y = "NPQ") +
+  geom_text(aes(label = cld, y = w + sd), vjust = -0.5) +
+  scale_fill_manual(
+    values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C"),
+    breaks = c(0, 1, 2, 3),
+    labels = c("AT5G45470 E-", "AT5G45470 E+", "WT E-", "WT"),
+    name = ""
+  ) +
   theme(legend.position = "top", text = element_text(size = 20)) +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    theme(
-        panel.background = element_rect(fill = "white"),  # Białe tło
-        panel.grid.major = element_line(color = "lightgray", linewidth = 0.5), # Szare linie siatki
-        panel.grid.minor = element_blank(),  # Wyłącz linie siatki pomocniczej
-    )
-
-plot3
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+    panel.background = element_rect(fill = "white"),
+    panel.grid.major = element_line(color = "lightgray", size = 0.5),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank()
+  )
 ```
 
+ggsave(filename = file.path(path, '/figures/plots/rfd_lss_pomiar2.png'), plot = rfd_pomiar1, width = 12, height = 8)
+ggsave(filename = file.path(path, 'figures/plots/npq_lss_pomiar2.png'), plot = npq_pomiar1, width = 12, height = 8)
 
-```{r}
-ggsave(filename = '/home/konsternacja/Git/master-thesis1/figures/plots/rfd_lss_pomiar2.png',plot = plot1, width = 12, height = 8)
-ggsave(filename = '/home/konsternacja/Git/master-thesis1/figures/plots/npq_lss_pomiar2.png',plot = plot3, width = 12, height = 8)
-```
 
 
 

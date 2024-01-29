@@ -1,0 +1,82 @@
+---
+title: "AT5G45470 & AT545480 qPCR"
+output: html.notebook
+---
+
+qPCR analysis and plots for my master thesis.
+
+```{r}
+require(ggplot2)
+library(readr)
+require(dplyr)
+library(dotenv)
+require(readODS)
+library(ggsignif)
+```
+
+```{r}
+load_dot_env(file = ".env")
+```
+
+
+```{r}  
+path <- Sys.getenv("MY_PATH")
+path
+```
+
+```{r}
+dlugosc_path <- file.path(path, "architektura/data/dlugosc.tsv")
+ilosc_path <- file.path(path, "architektura/data/ilosc.ods")
+```
+
+```{r}
+dlugosc <- read_tsv(dlugosc_path, col_names = TRUE)
+ilosc <- read_ods(ilosc_path)
+```
+
+```{r}
+dl <- ggplot(dlugosc, aes(x = plant, y = length, fill = plant)) +
+  geom_boxplot(outlier.size = 0.5, outlier.colour = "red") +
+  ggtitle("Zmiana długości włośników w zależności od grupy roślin") +
+  geom_point(alpha=0.8) +
+  labs(x = "", y = "Długość włośników [um]") +
+  scale_fill_manual(values = c("#A6CEE3", "#1F78B4","#B2DF8A", "#33A02C"),
+                    name = "") +
+  geom_signif(comparisons = list(c("AT5G45470 E-", "WT E-"), c("AT5G45470 E+", "WT E+")), map_signif_level = T, test="t.test", step_increase = 0.2) +
+  scale_y_continuous(limits =c(0, 400)) +
+  theme(legend.position = "top", text = element_text(size = 20)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+      panel.background = element_rect(fill = "white"),  # Białe tło
+      panel.grid.major = element_line(color = "lightgray", size = 0.5), # Szare linie siatki
+      panel.grid.minor = element_blank(),  # Wyłącz linie siatki pomocniczej
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank()
+    )
+```
+
+```{r}
+il <- ggplot(ilosc, aes(x = Grupa.roślin, y = Liczba.włośników, fill = Grupa.roślin)) +
+  geom_boxplot(outlier.size = 0.5, outlier.colour = "red") +
+  ggtitle("Zmiana ilości włośników w zależności od grupy roślin") +
+  geom_point(alpha=0.8) +
+  labs(x = "", y = "Liczba włośników") +
+  scale_fill_manual(values = c("#A6CEE3", "#1F78B4",  "#B2DF8A", "#33A02C"),
+                    name="") +
+  geom_signif(comparisons = list(c("AT5G45470 E-", "WT E-"), c("AT5G45470 E+", "WT E+")), map_signif_level = T, test="t.test", step_increase = 0.2) +
+  theme(legend.position = "top", text = element_text(size = 20)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+      panel.background = element_rect(fill = "white"),  # Białe tło
+      panel.grid.major = element_line(color = "lightgray", linewidth = 0.5), # Szare linie siatki
+      panel.grid.minor = element_blank(),  # Wyłącz linie siatki pomocniczej
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank()
+    )
+```
+
+
+```{r}
+ggsave(filename = file.path(path, 'figures/plots/dlugosc_wlosnikow.png'), plot = dl, width = 12, height = 8)
+ggsave(filename = file.path(path, 'figures/plots/ilosc_wlosnikow.png'), plot = il, width = 12, height = 8)
+```

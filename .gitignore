@@ -1,0 +1,9 @@
+fluorcam/data/*
+70e+/
+70e-/
+70e-2/
+70e+2/
+figures/
+
+.env
+protocols&primers/at5g45472.docx

@@ -1,0 +1,71 @@
+---
+title: "AT5G45470 & AT545480 qPCR"
+output: html.notebook
+---
+
+qPCR analysis and plots for my master thesis.
+
+```{r}
+require(ggplot2)
+require(readxl)
+require(dplyr)
+require(dotenv)
+```
+
+```{r}  
+path <- Sys.getenv("MY_PATH")
+path
+```
+
+```{r}
+plant <- c(rep("WT E-", 3), rep("WT E+", 3), rep("AT5G45470 E-", 3), rep("AT5G45470 E+", 3))
+weight <- c(19.4, 19.8, 18.4, 17.4, 19.4, 18.2, 18.8, 16.2, 15.8, 19.2, 16.4, 18.1)
+df <- data.frame(plant, weight)
+df
+```
+
+```{r}
+means <- df %>%
+  group_by(plant) %>% 
+  dplyr::summarise(weight = mean(weight))
+means$error.bars <- c(0.72, 1.42, 1.63, 1.42)
+means
+
+seed_plot <- ggplot(df, aes(x = plant, y = weight, fill = plant)) +
+  geom_boxplot(outlier.size = 0.5, outlier.colour = "red") +
+  ggtitle("Wpływ inokulacji i mutacji na wage nasion") +
+  geom_point(alpha=0.8) +
+  labs(x = "", y = "Waga 50 nasion [mg]") +
+  scale_fill_manual(values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C"),
+                    name = "") +
+  coord_cartesian(ylim = c(0, max(means$weight) + 1)) + 
+  theme(legend.position = "top", text = element_text(size = 20)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+      panel.background = element_rect(fill = "white"),  # Białe tło
+      panel.grid.major = element_line(color = "lightgray", size = 0.5), # Szare linie siatki
+      panel.grid.minor = element_blank(),  # Wyłącz linie siatki pomocniczej
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank()
+    )
+
+```
+
+```{r}
+ggsave(filename = file.path(path, 'figures/plots/nasiona.png'), plot = seed_plot, width = 12, height = 8)
+```
+
+```{r}
+t.test.70 <- t.test(df$weight[1:3],df$weight[4:6], var.equal = TRUE)
+t.test.70
+```
+
+```{r}
+anova_seeds <- aov(data = df, formula = weight ~ plant)
+summary(anova_seeds)
+```
+
+```{r}
+t.test.80 <- t.test(df$weight[7:9],df$weight[10:12], var.equal = TRUE)
+t.test.80
+```
