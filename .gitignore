@@ -1,11 +1,7 @@
-fluorcam/data/*
-70e+/
-70e-/
-70e-2/
-70e+2/
-figures/
-
-*.env
-*.RData
-*.Rhistory
-/protocols&primers/at5g45472.docx
+figures/*
+# fluorCAM/measurements/*
+# *.env
+# *.RData
+# *.Rhistory
+# *.vscode
+# /protocols&primers/at5g45472.docx
