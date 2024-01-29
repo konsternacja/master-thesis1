@@ -6,13 +6,22 @@ output: html_notebook
 ```{r}
 library(ggplot2)
 library(ggsignif)
+library(dotenv)
 ```
+
+```{r}
+load_dot_env(".env")
+```
+
+```{r}
+path <- Sys.getenv("MY_PATH")
+```
+
 
 ```{r}
 plant <- c(rep("AT5G45470 E-", 9), rep("AT5G45470 E+", 9), rep("AT5G45480 E-", 9), rep("AT5G45480 E+", 9))
 fold.change <- c(3.28, 3.28, 3.28, 0.33, 0.33, 0.33, 0.92, 0.92, 0.92, 12.01, 12.01, 12.01, 29.38, 29.38, 29.38, 14.37, 14.37, 14.37, 0.52, 0.52, 0.52, 0.7, 0.7, 0.7, 2.75, 2.75, 2.75, 10.71, 10.71, 10.71, 14.09, 14.09, 14.09, 3.96, 3.96, 3.96)
 df <- data.frame(plant, fold.change)
-df
 ```
 
 ```{r}
@@ -35,8 +44,9 @@ qpcr_plot <- ggplot(df, aes(x = plant, y = fold.change, fill = plant)) +
     )
 qpcr_plot
 ```
+
 ```{r}
-ggsave(filename = 'pfaffl.png',plot = qpcr_plot, width = 12, height = 8)
+ggsave(filename = file.path(path, '/figures/plots/pfaffl.png'), plot = qpcr_plot, width = 12, height = 8)
 ```
 
 ```{r}

@@ -6,4 +6,6 @@ fluorcam/data/*
 figures/
 
 .env
+.RData
+.Rhistory
 protocols&primers/at5g45472.docx
