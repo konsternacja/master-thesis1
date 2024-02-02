@@ -20,7 +20,6 @@ load_dot_env(file = ".env")
 
 ```{r}  
 path <- Sys.getenv("MY_PATH")
-path
 ```
 
 ```{r}
@@ -66,6 +65,22 @@ for (column_name in colnames(data_all)) {
 ```{r}
 significant_cols <- trimws(significant_columns)
 significant_cols
+```
+
+```{r}
+#2d anova for Rfd_Lss
+formula <- as.formula(paste('Rfd_Lss', "~ plant * inoculation"))
+
+anova2d <- aov(formula, data = data_all)
+TukeyHSD(anova2d)
+```
+
+```{r}
+#2d anova for NPQ_Lss
+formula <- as.formula(paste('NPQ_Lss', "~ plant * inoculation"))
+
+anova2d <- aov(formula, data = data_all)
+TukeyHSD(anova2d)
 ```
 
 
@@ -178,8 +193,11 @@ npq_pomiar2 <- ggplot(dt, aes(group, w, fill = factor(group))) +
   )
 ```
 
-ggsave(filename = file.path(path, '/figures/plots/rfd_lss_pomiar2.png'), plot = rfd_pomiar1, width = 12, height = 8)
-ggsave(filename = file.path(path, 'figures/plots/npq_lss_pomiar2.png'), plot = npq_pomiar1, width = 12, height = 8)
+```{r}
+ggsave(filename = file.path(path, '/figures/plots/rfd_lss_pomiar2.png'), plot = rfd_pomiar2, width = 12, height = 8)
+ggsave(filename = file.path(path, 'figures/plots/npq_lss_pomiar2.png'), plot = npq_pomiar2, width = 12, height = 8)
+```
+
 
 
 

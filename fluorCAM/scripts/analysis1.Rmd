@@ -20,7 +20,6 @@ load_dot_env(file = ".env")
 
 ```{r}  
 path <- Sys.getenv("MY_PATH")
-path
 ```
 
 ```{r}
@@ -78,6 +77,24 @@ data_all$group <- as.numeric(data_all$group) - 1
 # Print the resulting data_all table
 print(data_all)
 ```
+
+```{r}
+#2d anova for Rfd_Lss
+formula <- as.formula(paste('Rfd_Lss', "~ plant * inoculation"))
+
+anova2d <- aov(formula, data = data_all)
+TukeyHSD(anova2d)
+```
+
+```{r}
+#2d anova for NPQ_Lss
+formula <- as.formula(paste('NPQ_Lss', "~ plant * inoculation"))
+
+anova2d <- aov(formula, data = data_all)
+TukeyHSD(anova2d)
+```
+
+
 
 ```{r}
 data_all$group <- as.factor(data_all$group)
