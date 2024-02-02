@@ -11,6 +11,7 @@ library(dplyr)
 library(reshape)
 library(multcompView)
 library(dotenv)
+library(tidyr)
 ```
 
 ```{r}
@@ -198,6 +199,42 @@ npq_pomiar1 <- ggplot(dt, aes(group, w, fill = factor(group))) +
 ggsave(filename = file.path(path, '/figures/plots/rfd_lss_pomiar1.png'), plot = rfd_pomiar1, width = 12, height = 8)
 ggsave(filename = file.path(path, 'figures/plots/npq_lss_pomiar1.png'), plot = npq_pomiar1, width = 12, height = 8)
 ```
+
+```{r}
+data_long <- pivot_longer(data_all, cols = starts_with("NPQ"), names_to = "variable", values_to = "value")
+
+# Wybieranie konkretnych kolumn NPQ_L1, NPQ_L2, NPQ_L3, NPQ_L4
+selected_columns <- c("NPQ_L1", "NPQ_L2", "NPQ_L3", "NPQ_L4")
+data_filtered <- data_long[data_long$variable %in% selected_columns, ]
+
+# Tworzenie wykresu kolumnowego z różnymi kolorami dla inokulacji
+ggplot(data_filtered, aes(x = factor(variable, levels = selected_columns), y = value, fill = inoculation)) +
+  geom_col(position = "dodge", color = "white") +
+  facet_wrap(~plant, scales = "free_y", ncol = 2) +
+  labs(title = "NPQ dla różnych poziomów i kombinacji roślin i inokulacji, pomiar 1",
+       x = "Poziom NPQ", y = "Wartość") +
+  theme_minimal()
+```
+
+```{r}
+data_long <- pivot_longer(data_all, cols = starts_with("NPQ"), names_to = "variable", values_to = "value")
+
+# Wybieranie konkretnych kolumn NPQ_L1, NPQ_L2, NPQ_L3, NPQ_L4
+selected_columns <- c("NPQ_L1", "NPQ_L2", "NPQ_L3", "NPQ_L4")
+data_filtered <- data_long[data_long$variable %in% selected_columns, ]
+
+# Tworzenie wykresu liniowego z różnymi kolorami dla inokulacji
+ggplot(data_filtered, aes(x = variable, y = value, group = interaction(plant, inoculation), color = inoculation)) +
+  geom_line() +
+  facet_wrap(~plant, scales = "free_y", ncol = 2) +
+  labs(title = "NPQ dla różnych poziomów i kombinacji roślin i inokulacji, pomiar 1",
+       x = "Poziom NPQ", y = "Wartość") +
+  theme_minimal()
+```
+
+
+
+
 
 
 
