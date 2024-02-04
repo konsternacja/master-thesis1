@@ -30,7 +30,7 @@ qpcr_plot <- ggplot(df, aes(x = plant, y = fold.change, fill = plant)) +
   ggtitle("Zmiana ekspresji w zalezności od grupy roślin") +
   geom_point(alpha=0.8) +
   labs(x = "", y = "Fold change") +
-  scale_fill_manual(values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C"),
+  scale_fill_manual(values = c("#A6CEE3", "#1F78B4", "#CC99FF", "#660099"),
                     name = "") +
   geom_signif(comparisons = list(c("AT5G45470 E-", "AT5G45470 E+"), c("AT5G45480 E-","AT5G45480 E+")), map_signif_level = T,  test="t.test", step_increase = 0.2) +
   theme(legend.position = "top", text = element_text(size = 20)) +
