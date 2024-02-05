@@ -10,6 +10,8 @@ require(ggplot2)
 require(readxl)
 require(dplyr)
 require(dotenv)
+require(multcompView)
+require(ggsignif)
 ```
 
 ```{r}  
@@ -18,11 +20,69 @@ path
 ```
 
 ```{r}
-plant <- c(rep("WT E-", 3), rep("WT E+", 3), rep("AT5G45470 E-", 3), rep("AT5G45470 E+", 3))
+group <- c(rep("2", 3), rep("3", 3), rep("0", 3), rep("1", 3))
 weight <- c(19.4, 19.8, 18.4, 17.4, 19.4, 18.2, 18.8, 16.2, 15.8, 19.2, 16.4, 18.1)
-df <- data.frame(plant, weight)
+df <- data.frame(group, weight)
 df
 ```
+
+```{r}
+formula <- as.formula(paste('weight', "~ group"))
+
+anova2d <- aov(formula, data = df)
+TukeyHSD(anova2d)
+```
+
+```{r}
+df$group <- as.factor(df$group)
+
+# anova
+anova <- aov(weight ~ group, data = df)
+
+print(anova)
+
+# Tukey's test
+tukey <- TukeyHSD(anova)
+
+print(tukey)
+
+# compact letter display
+cld <- multcompLetters4(anova, tukey)
+
+# table with factors and 3rd quantile
+dt <- group_by(df, group) %>%
+  summarise(w=mean(weight), sd = sd(weight)) %>%
+  arrange(desc(w))
+
+# extracting the compact letter display and adding to the Tk table
+cld <- as.data.frame.list(cld$group)
+dt$cld <- cld$Letters
+
+
+seeds <- ggplot(dt, aes(group, w, fill = factor(group))) + 
+  geom_bar(stat = "identity", show.legend = TRUE) +
+  geom_errorbar(aes(ymin = w - sd, ymax = w + sd), width = 0.2) +
+  ggtitle("Masa 50 nasion w zależności od o grupy roślin") +
+  labs(x = "", y = "Masa 50 nasion [mg]") +
+  geom_text(aes(label = cld, y = w + sd), vjust = -0.5) +
+  scale_fill_manual(
+    values = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C"),
+    breaks = c(0, 1, 2, 3),
+    labels = c("AT5G45470 E-", "AT5G45470 E+", "WT E-", "WT E-"),
+    name = ""
+  ) +
+  theme(legend.position = "top", text = element_text(size = 20)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+    panel.background = element_rect(fill = "white"),
+    panel.grid.major = element_line(color = "lightgray", size = 0.5),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank()
+  )
+seeds
+```
+
 
 ```{r}
 means <- df %>%
@@ -49,10 +109,11 @@ seed_plot <- ggplot(df, aes(x = plant, y = weight, fill = plant)) +
       axis.ticks.x = element_blank()
     )
 
+seed_plot
 ```
 
 ```{r}
-ggsave(filename = file.path(path, 'figures/plots/nasiona.png'), plot = seed_plot, width = 12, height = 8)
+ggsave(filename = file.path(path, 'figures/plots/nasiona.png'), plot = seeds, width = 12, height = 8)
 ```
 
 ```{r}
