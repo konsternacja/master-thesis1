@@ -32,6 +32,7 @@ ilosc_path <- file.path(path, "architektura/data/ilosc.ods")
 ```{r}
 dlugosc <- read_tsv(dlugosc_path, col_names = TRUE)
 ilosc <- read_ods(ilosc_path)
+dlugosc
 ```
 
 ```{r}
@@ -53,6 +54,7 @@ dl <- ggplot(dlugosc, aes(x = plant, y = length, fill = plant)) +
       axis.text.x = element_blank(),
       axis.ticks.x = element_blank()
     )
+dl
 ```
 
 ```{r}
@@ -73,6 +75,7 @@ il <- ggplot(ilosc, aes(x = Grupa.roślin, y = Liczba.włośników, fill = Grupa
       axis.text.x = element_blank(),
       axis.ticks.x = element_blank()
     )
+il
 ```
 
 
