@@ -60,7 +60,7 @@ dl
 ```{r}
 il <- ggplot(ilosc, aes(x = Grupa.roślin, y = Liczba.włośników, fill = Grupa.roślin)) +
   geom_boxplot(outlier.size = 0.5, outlier.colour = "red") +
-  ggtitle("Zmiana ilości włośników w zależności od grupy roślin") +
+  ggtitle("Zmiana liczby włośników w zależności od grupy roślin") +
   geom_point(alpha=0.8) +
   labs(x = "", y = "Liczba włośników") +
   scale_fill_manual(values = c("#A6CEE3", "#1F78B4",  "#B2DF8A", "#33A02C"),
